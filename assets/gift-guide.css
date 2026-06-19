@@ -1,0 +1,72 @@
+/* Shared animated button used by the gift banner  */
+
+.gift-btn-anim {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0.75rem 1.4rem;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    isolation: isolate;
+    transition: color 0.35s ease;
+}
+
+.gift-btn-anim__label,
+.gift-btn-anim .gift-arrow {
+    position: relative;
+    z-index: 1;
+}
+
+.gift-arrow {
+    width: 26px;
+    height: 12px;
+    transition: transform 0.35s ease;
+}
+
+.gift-btn-anim::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    transition: transform 0.35s ease;
+    z-index: 0;
+}
+
+.gift-btn-anim:hover .gift-arrow,
+.gift-btn-anim:focus-visible .gift-arrow {
+    transform: translateX(6px);
+}
+
+.gift-btn-anim:hover::before,
+.gift-btn-anim:focus-visible::before {
+    transform: translateX(0);
+}
+
+.gift-btn-anim--dark {
+    background: #111;
+    color: #fff;
+}
+
+.gift-btn-anim--dark::before {
+    background: var(--gb-accent, #fff544);
+}
+
+.gift-btn-anim--dark:hover,
+.gift-btn-anim--dark:focus-visible {
+    color: #111;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .gift-btn-anim::before,
+    .gift-btn-anim .gift-arrow {
+        transition: none;
+    }
+}
