@@ -1,30 +1,29 @@
-<style>
+{% comment %} Gift guide hero banner. All text in the figma is editable from the customizer. {% endcomment %}
 
-</style>
-<section class="gift-banner" id="gift-banner-{{ section.id }}" >
-
-{% comment %} Header section {% endcomment %}
+<section class="gift-banner" id="gift-banner-{{ section.id }}"
+    style="--gb-accent: {{ section.settings.accent_color }};">
     <header class="gift-banner__topbar">
-        <button class="gift-banner__burger" type="button" aria-label="Open menu" aria-expanded="false">
-            <span></span>
-            <span></span>
-            <span></span>
+        <button class="gift-banner__burger" type="button" data-menu-toggle aria-label="Open menu" aria-expanded="false">
+            <span></span><span></span><span></span>
         </button>
 
-        <a href="{{ section.settings.logo_link }}" class="gift-banner__logo">
-            {% if section.settings.logo != blank %}
-                <img src="{{ section.settings.logo |  image_url: width: 300 }}" alt="{{ section.settings.logo_text | escape }}" loading="eager" width="300" height="100" />
-            {% else %}
-                {{ section.settings.logo_text | escape }}
-            {% endif %}
+        <a href="{{ section.settings.logo_link | default: routes.root_url }}" class="gift-banner__logo">
+            {%- if section.settings.logo != blank -%}
+            <img src="{{ section.settings.logo | image_url: width: 360 }}"
+                alt="{{ section.settings.logo_text | escape }}" width="180" height="20" loading="lazy">
+            {%- else -%}
+            {{ section.settings.logo_text | escape }}
+            {%- endif -%}
         </a>
 
-        {% comment %} mobile whole slide block in from the left as a drawer {% endcomment %}
-         <div class="gift-banner__menu" data-menu>
-
+        {%- comment -%} On mobile this whole block slides in from the left as a drawer. {%- endcomment -%}
+        <div class="gift-banner__menu" data-menu>
             <div class="gift-banner__menu-head">
                 <button class="gift-banner__close" type="button" data-menu-close aria-label="Close menu">
-
+                    <svg viewBox="0 0 20 20" aria-hidden="true">
+                        <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="1.6"
+                            stroke-linecap="round" />
+                    </svg>
                 </button>
                 <span class="gift-banner__menu-logo">{{ section.settings.logo_text | escape }}</span>
             </div>
@@ -33,131 +32,196 @@
 
             <a href="{{ section.settings.topbar_button_link | default: '#' }}" class="gift-banner__pill gift-btn-anim">
                 <span class="gift-btn-anim__label">{{ section.settings.topbar_button_text | escape }}</span>
-                <svg class="gift-arrow"></svg>
+                <svg class="gift-arrow" viewBox="0 0 26 12" fill="none" aria-hidden="true">
+                    <path d="M0 6h23M18 1l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
             </a>
+        </div>
 
-         </div>
-
-         <div class="gift-banner__overlay" data-menu-overlay></div>
+        <div class="gift-banner__overlay" data-menu-overlay></div>
     </header>
 
-
     <div class="gift-banner__hero">
-        {% if section.settings.hero_image != blank %}
-           <img class="gift-banner__bg"
-            src="{{ section.settings.background_image | image_url: width: 1920 }}"
-            srcset="{{ section.settings.background_image |  image_url: width: 600 }} 600w, {{ section.settings.background_image |  image_url: width: 1200 }} 1200w, {{ section.settings.background_image |  image_url: width: 1920 }} 1920w"
-            sizes="100vw"
-            alt="{{ section.settings.heading | escape }}"
-            loading="eager" width="1920" height="1080"
-            fetchpriority="high"
-           />
-        {% endif %}
+        {%- if section.settings.background_image != blank -%}
+        <img class="gift-banner__bg" src="{{ section.settings.background_image | image_url: width: 1200 }}"
+            srcset="{{ section.settings.background_image | image_url: width: 1200 }} 1200w, {{ section.settings.background_image | image_url: width: 1800 }} 1800w, {{ section.settings.background_image | image_url: width: 2400 }} 2400w, {{ section.settings.background_image | image_url: width: 3840 }} 3840w"
+            sizes="100vw" alt="" loading="eager" fetchpriority="high">
+        {%- endif -%}
 
         <div class="gift-banner__content">
-            {% if section.settings.heading != blank %}
-                <h1 class="gift-banner__heading">{{ section.settings.heading | escape }}</h1>
-            {% endif %}
+            {%- if section.settings.heading != blank -%}
+            <h1 class="gift-banner__heading">{{ section.settings.heading | escape }}</h1>
+            {%- endif -%}
 
-            {% if section.settings.description != blank %}
-                <div class="gift-banner__desc gift-banner__desc--desktop">{{ section.settings.description | escape }}</div>
-            {% endif %}
+            {%- if section.settings.description != blank -%}
+            <div class="gift-banner__desc gift-banner__desc--desktop">{{ section.settings.description }}</div>
+            {%- endif -%}
 
-            {% if section.settings.mobile_description != blank %}
-                <div class="gift-banner__desc gift-banner__desc--mobile">{{ section.settings.mobile_description | escape }}</div>
-            {% endif %}
+            {%- if section.settings.mobile_description != blank -%}
+            <div class="gift-banner__desc gift-banner__desc--mobile">{{ section.settings.mobile_description }}</div>
+            {%- endif -%}
 
-            {% if section.settings.button_text != blank and section.settings.button_link != blank %}
-                <a href="{{ section.settings.button_link | default: '#' }}" class="gift-banner__cta gift-btn-anim gift-btn-anim--dark">
-                    <span class="gift-btn-anim__label">{{ section.settings.button_text | escape }}</span>
-                    <svg class="gift-arrow"></svg>
-                </a>
-            {% endif %}
+            {%- if section.settings.button_text != blank -%}
+            <a href="{{ section.settings.button_link | default: '#' }}"
+                class="gift-banner__cta gift-btn-anim gift-btn-anim--dark">
+                <span class="gift-btn-anim__label">{{ section.settings.button_text | escape }}</span>
+                <svg class="gift-arrow" viewBox="0 0 26 12" fill="none" aria-hidden="true">
+                    <path d="M0 6h23M18 1l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </a>
+            {%- endif -%}
         </div>
     </div>
 
-    {% if section.settings.strip_text != blank %}
-    <div class="gift-banner__strip">
-        <p class="gift-banner__strip-text">
-            {{ section.settings.strip_text | escape }}
-        </p>
-    </div>
-    {% endif %}
-
+    {%- if section.settings.strip_text != blank -%}
+    <div class="gift-banner__strip"><span>{{ section.settings.strip_text | escape }}</span></div>
+    {%- endif -%}
 </section>
 
-{%  stylesheet  %}
-    .gift-banner{
-        color: #000;
-        width: 100%;
-    }
-    .gift-banner__topbar{
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        align-items: center;
-        gap: 1rem;
-        padding: 10px clamp(1rem, 3.5vw, 50px);
-        background: #f5f5f5;
-    }
-    .gift-banner__burger{
-        display: none;;
-    }
-    .gift-banner__logo{
-        justify-self: start;
-        font-weight: 500;
-        letter-spacing: 0.22em;
-        font-size: 1.1rem;
-        text-transform: uppercase;
-        text-decoration: none;
-        color: inherit;
-        white-space: nowrap;
-    }
-    .gift-banner__tagline{
-        margin: 0;
-        text-align: center;
-        font-size: 1rem;
-        color: #000;
-    }
-    .gift-banner__pill{
-        justify-self: end;
-    }
 
+{% stylesheet %}
+.gift-banner {
+color: #000;
+width: 100%;
+}
 
+.gift-banner__topbar {
+display: grid;
+grid-template-columns: 1fr auto 1fr;
+align-items: center;
+gap: 1rem;
+padding: 10px clamp(1rem, 3.5vw, 50px);
+background: #f5f5f5;
+}
+.gift-banner__burger { display: none; }
+.gift-banner__logo {
+justify-self: start;
+font-weight: 500;
+letter-spacing: 0.22em;
+font-size: 1.1rem;
+text-transform: uppercase;
+text-decoration: none;
+color: inherit;
+white-space: nowrap;
+}
+.gift-banner__tagline { margin: 0; text-align: center; font-size: 1rem; color: #000; }
+.gift-banner__pill { justify-self: end; }
 
-{% endstylesheet %} %}
+.gift-banner__menu { display: contents; }
+.gift-banner__menu-head, .gift-banner__overlay { display: none; }
+
+.gift-banner__hero { position: relative; background: #fff; overflow: hidden; }
+.gift-banner__bg { display: block; width: 100%; height: auto; }
+.gift-banner__content {
+position: absolute;
+left: 9.8%;
+top: 52%;
+transform: translateY(-42%);
+max-width: min(90%, 430px);
+}
+.gift-banner__heading {
+font-weight: 500;
+margin: 0 0 1.1rem;
+font-size: clamp(2.4rem, 4.3vw, 3.85rem);
+line-height: 1;
+color: #000;
+}
+.gift-banner__desc { margin: 0 0 0.75rem; font-size: clamp(0.9rem, 1.25vw, 1.1rem); line-height: 1.4; color: #000; }
+.gift-banner__desc p { margin: 0; }
+.gift-banner__desc--mobile { display: none; }
+
+.gift-banner__strip { background: #f5f5f5; text-align: center; padding: 10px 1rem; }
+.gift-banner__strip span { font-size: clamp(0.85rem, 1.1vw, 0.95rem); letter-spacing: 0.06em; color: #000; }
+
+.gift-banner__pill { background: var(--gb-accent); color: #111; }
+.gift-banner__pill::before { background: #111; }
+.gift-banner__pill:hover, .gift-banner__pill:focus-visible { color: var(--gb-accent); }
+
+@media screen and (max-width: 749px) {
+.gift-banner__topbar {
+grid-template-columns: auto 1fr auto;
+padding: 1.3rem 1rem;
+background: #f7f7f7;
+box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+.gift-banner__burger {
+display: inline-flex; flex-direction: column; gap: 4px; justify-self: start;
+background: none; border: none; padding: 0.25rem; cursor: pointer;
+}
+.gift-banner__burger span { width: 18px; height: 2px; background: #000; }
+.gift-banner__logo { justify-self: center; font-size: 1.05rem; }
+
+.gift-banner__menu {
+display: flex;
+flex-direction: column;
+gap: 1.5rem;
+position: fixed;
+top: 0;
+left: 0;
+z-index: 60;
+width: min(85vw, 360px);
+height: 100%;
+padding: 1.3rem 1.5rem 2rem;
+background: #f7f7f7;
+box-shadow: 2px 0 14px rgba(0,0,0,0.18);
+transform: translateX(-100%);
+transition: transform 0.3s ease;
+}
+.gift-banner.is-menu-open .gift-banner__menu { transform: translateX(0); }
+
+.gift-banner__menu-head { display: flex; align-items: center; gap: 1rem; }
+.gift-banner__close { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; padding: 0; background: none; border: none; color: #000; cursor: pointer; }
+.gift-banner__close svg { width: 18px; height: 18px; }
+.gift-banner__menu-logo { font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; font-size: 1.05rem; }
+
+.gift-banner__tagline { text-align: left; }
+.gift-banner__pill { justify-self: start; align-self: flex-start; }
+
+.gift-banner__overlay {display: block;position: fixed;inset: 0;z-index: 55;background: rgba(0,0,0,0.4);opacity: 0;visibility: hidden;transition: opacity 0.3s ease;
+}
+.gift-banner.is-menu-open .gift-banner__overlay { opacity: 1; visibility: visible; }
+
+.gift-banner__hero { display: flex; flex-direction: column; }
+.gift-banner__content { position: static; order: -1; transform: none; max-width: 340px; text-align: center; padding: 2.5rem 1rem 0.5rem; margin-inline: auto; }
+.gift-banner__heading { font-size: 1.875rem; margin-bottom: 1.5rem; }
+.gift-banner__desc { font-size: 1rem; line-height: 1.3; }
+.gift-banner__desc--desktop { display: none; }
+.gift-banner__desc--mobile { display: block; }
+.gift-banner__cta { position: absolute; left: 50%; bottom: 11%; transform: translateX(-50%); color: #fff; background: #000;display: flex;align-items: center; justify-content: center; gap: 2rem; min-width: 180px; max-width: 200px;text-wrap: nowrap; padding:13px 20px;}
+.gift-arrow { width: 24px; height: auto; }
+}
+{% endstylesheet %}
+
 {% schema %}
-    {
-        "name": "Gift Banner",
-        "class": "gift-banner-section",
-        "tag": "section",
-        "settings": [
-            { "type": "header", "content": "Top bar" },
-            { "type": "image_picker", "id": "logo", "label": "Logo image (optional)" },
-            { "type": "text", "id" : "logo_text", "label" : "Logo text (required)", "default" : "TISSO VISON" },
-            { "type": "url", "id" : "logo_link", "label" : "Logo link (optional)", "default" : "/" },
-            { "type": "text", "id": "topbar_tagline", "label": "Tagline", "default": "Find the ideal gift for your loved ones." },
-            { "type": "text", "id": "topbar_button_text", "label": "Button text", "default": "CHOOSE GIFT" },
-            { "type": "url", "id": "topbar_button_link", "label": "Button link" },
+{
+"name": "Gift Banner",
+"tag": "section",
+"class": "gift-banner-section",
+"settings": [
+{ "type": "header", "content": "Top bar" },
+{ "type": "image_picker", "id": "logo", "label": "Logo image (optional)" },
+{ "type": "text", "id": "logo_text", "label": "Logo text", "default": "TISSO VISON" },
+{ "type": "url", "id": "logo_link", "label": "Logo link" },
+{ "type": "text", "id": "topbar_tagline", "label": "Tagline", "default": "Find the ideal gift for your loved ones." },
+{ "type": "text", "id": "topbar_button_text", "label": "Button text", "default": "CHOOSE GIFT" },
+{ "type": "url", "id": "topbar_button_link", "label": "Button link" },
 
-            { "type": "header", "content": "Hero Section" },
-            { "type": "image_picker", "id": "background_image", "label": "Hero background image" },
-            { "type": "text", "id": "heading", "label": "Heading", "default": "The Gift Guide" },
-            { "type": "richtext", "id": "description", "label": "Description", "default": "<p>Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.</p>" },
-            { "type": "richtext", "id": "mobile_description", "label": "Mobile Description(shorter)", "default": "<p>Discover Joy: Your Ultimate Holiday Gift Destination.</p>" },
-            { "type": "text", "id": "button_text", "label": "Button text", "default": "SHOP NOW" },
-            { "type": "url", "id":"button_link", "label": "Button link" },
+{ "type": "header", "content": "Hero" },
+{ "type": "image_picker", "id": "background_image", "label": "Background illustration" },
+{ "type": "text", "id": "heading", "label": "Heading", "default": "The Gift Guide" },
+{ "type": "richtext", "id": "description", "label": "Description", "default": "<p>Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.</p>" },
+{ "type": "richtext", "id": "mobile_description", "label": "Description (mobile)", "info": "Shorter copy shown on mobile only. Keep it around 53 characters.", "default": "<p>Discover Joy: Your Ultimate Holiday Gift Destination.</p>" },
+{ "type": "text", "id": "button_text", "label": "Button text", "default": "SHOP NOW" },
+{ "type": "url", "id": "button_link", "label": "Button link" },
 
-            { "type": "header", "content": "Bottom Strip" },
-            { "type": "text", "id": "strip_text", "label": "Bottom strip text", "default": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL" },
+{ "type": "header", "content": "Bottom strip" },
+{ "type": "text", "id": "strip_text", "label": "Strip text", "default": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL" },
 
-            {"type": "header", "content": "Appearance Settings"},
-            {"type": "color", "id": "accent_color", "label": "Accent Color", "default": "#FFF544"}
-
-        ],
-        "presets": [
-            {
-                "name": "Gift Banner", "category": "Gift Page"
-            }
-        ]
-    }
+{ "type": "header", "content": "Appearance" },
+{ "type": "color", "id": "accent_color", "label": "Accent colour", "default": "#fff544" }
+],
+"presets": [{ "name": "Gift Banner" }]
+}
 {% endschema %}
