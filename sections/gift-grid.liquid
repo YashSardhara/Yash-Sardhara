@@ -29,13 +29,7 @@
 
              <div class="gift-grid__cell" {{ block.shopify_attributes }}>
                 {% if cell_image != blank %}
-                    <img class="gift-grid__img"
-                        src="{{ cell_image |  image_tag: width: 600 }}"
-                        srcset="{{ cell_image |  image_url: width: 500 }} 500w, {{ cell_image |  image_url: width: 800 }} 800w, {{ cell_image |  image_url: width: 1200 }} 1200w"
-                        sizes="(max-width: 749px) 50vw, 33vw"
-                        alt="{{ product.title |  default: product.handle | escape }}"
-                        loading="lazy" width="600" height="600"
-                    />
+                    <img class="gift-grid__img" src="{{ cell_image |  image_tag: width: 600 }}" srcset="{{ cell_image |  image_url: width: 500 }} 500w, {{ cell_image |  image_url: width: 800 }} 800w, {{ cell_image |  image_url: width: 1200 }} 1200w" sizes="(max-width: 749px) 50vw, 33vw" alt="{{ product.title |  default: product.handle | escape }}" loading="lazy" width="600" height="600" />
                 {% else %}
                     <div class="gift-grid__img gift-grid__img--placeholder">{{ 'image' |  placeholder_svg_tag }}</div>
                 {% endif %}
@@ -105,6 +99,7 @@
                     }
                     {%- assign emitted = emitted | plus: 1 -%}
                 {%- endif -%}
+            {%- endfor -%}
         ]
  </script>
 
@@ -150,13 +145,13 @@
 
         <div class="gift-popup__options" data-popup-options></div>
         <div class="gift-popup__forms">
-            {%- for block in section.blocks -%}
+            {% for block in section.blocks %}
                 {% if block.settings.product != blank %}
                     <form class="gift-popup__form" data-popup-form data-form-index="{{ forloop.index0 }}" hidden>
                         {% render 'gift-add-to-cart', product: block.settings.product, section: section, index: forloop.index0 %}
                     </form>
                 {% endif %}
-            {%- endfor -%}
+            {% endfor %}
         </div>
     </div>
 </div>
@@ -203,8 +198,7 @@
         "type": "text",
         "id": "soft_winter_jacket_variant",
         "label": "Variant ID (optional override)",
-        "info": "Leave blank to auto-pick the jacket's Black/Medium variant. Paste a numeric variant ID (from .../variants/XXXX)
-        to force a specific variant."
+        "info": "Leave blank to auto-pick the jacket's Black/Medium variant. Paste a numeric variant ID (from .../variants/XXXX) to force a specific variant."
         }
     ],
     "blocks": [ { "type":"product", "name":"Product", "settings": [
