@@ -45,11 +45,6 @@
     </div>
 
     <div class="gift-banner__hero" style="background-image: url('{{ section.settings.background_image.src | image_url }}');">
-        {% comment %} {%- if section.settings.background_image != blank -%}
-        <img class="gift-banner__bg" src="{{ section.settings.background_image | image_url: width: 1200 }}"
-            srcset="{{ section.settings.background_image | image_url: width: 1200 }} 1200w, {{ section.settings.background_image | image_url: width: 1800 }} 1800w, {{ section.settings.background_image | image_url: width: 2400 }} 2400w, {{ section.settings.background_image | image_url: width: 3840 }} 3840w"
-            sizes="100vw" alt="" loading="eager" fetchpriority="high">
-        {%- endif -%} {% endcomment %}
 
         <div class="gift-banner__content-section section">
             <div class="gift-banner__content-wrapper">
