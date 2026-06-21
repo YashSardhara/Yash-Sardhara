@@ -6,7 +6,8 @@
  * or related systems. Please exercise caution as any changes
  * made to this file may be overwritten.
  * ------------------------------------------------------------
- */{
+ */
+{
   "sections": {
     "main": {
       "type": "main-page",
@@ -21,10 +22,12 @@
             "alignment": "left",
             "type_preset": "h2",
             "font": "var(--font-primary--family)",
+            "font_size": "1rem",
             "line_height": "normal",
             "letter_spacing": "normal",
             "case": "none",
             "wrap": "pretty",
+            "text_color": "",
             "background": false,
             "background_color": "#00000026",
             "corner_radius": 0,
@@ -37,7 +40,9 @@
         },
         "page-content": {
           "type": "page-content",
-          "settings": {},
+          "settings": {
+            "text_color": ""
+          },
           "blocks": {}
         }
       },
@@ -45,6 +50,7 @@
         "heading",
         "page-content"
       ],
+      "disabled": true,
       "settings": {
         "content_direction": "column",
         "gap": 32,
@@ -52,9 +58,98 @@
         "padding-block-start": 40,
         "padding-block-end": 80
       }
+    },
+    "gift_banner_bHgT8W": {
+      "type": "gift-banner",
+      "name": "Gift Banner",
+      "settings": {
+        "logo": "shopify://shop_images/Group_1000007777.png",
+        "logo_text": "TISSO VISON",
+        "logo_link": "",
+        "topbar_tagline": "Find the ideal gift for your loved ones.",
+        "topbar_button_text": "CHOOSE GIFT",
+        "topbar_button_link": "",
+        "background_image": "shopify://shop_images/Frame_1.jpg",
+        "heading": "The Gift Guide",
+        "description": "<p>Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.</p>",
+        "mobile_description": "<p>Discover Joy: Your Ultimate Holiday Gift Destination.</p>",
+        "button_text": "SHOP NOW",
+        "button_link": "",
+        "strip_text": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL",
+        "accent_color": "#fff544"
+      }
+    },
+    "gift_grid_Kab7kM": {
+      "type": "gift-grid",
+      "blocks": {
+        "product_jg9RMJ": {
+          "type": "product",
+          "settings": {
+            "product": "black-leather-bag",
+            "hotspot_x": 60,
+            "hotspot_y": 61
+          }
+        },
+        "product_An3NFk": {
+          "type": "product",
+          "settings": {
+            "product": "blue-silk-tuxedo",
+            "hotspot_x": 85,
+            "hotspot_y": 53
+          }
+        },
+        "product_dr8Wez": {
+          "type": "product",
+          "settings": {
+            "product": "chequered-red-shirt",
+            "hotspot_x": 62,
+            "hotspot_y": 23
+          }
+        },
+        "product_tVm3tT": {
+          "type": "product",
+          "settings": {
+            "product": "classic-leather-jacket",
+            "hotspot_x": 72,
+            "hotspot_y": 20
+          }
+        },
+        "product_q8ityq": {
+          "type": "product",
+          "settings": {
+            "product": "classic-varsity-top",
+            "hotspot_x": 50,
+            "hotspot_y": 28
+          }
+        },
+        "product_9n36xW": {
+          "type": "product",
+          "settings": {
+            "product": "dark-denim-top",
+            "hotspot_x": 77,
+            "hotspot_y": 41
+          }
+        }
+      },
+      "block_order": [
+        "product_jg9RMJ",
+        "product_An3NFk",
+        "product_dr8Wez",
+        "product_tVm3tT",
+        "product_q8ityq",
+        "product_9n36xW"
+      ],
+      "name": "Gift Grid",
+      "settings": {
+        "heading": "Tisso vison in the wild",
+        "soft_winter_jacket": "dark-winter-jacket",
+        "soft_winter_jacket_variant": "43511653859418"
+      }
     }
   },
   "order": [
-    "main"
+    "main",
+    "gift_banner_bHgT8W",
+    "gift_grid_Kab7kM"
   ]
 }
