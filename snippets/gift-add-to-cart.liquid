@@ -1,3 +1,4 @@
+{% comment %} Add to cart for gift guide - gift gride section {% endcomment %}
 {%- liquid
   assign variant = product.selected_or_first_available_variant
   assign can_add_to_cart = false
@@ -16,6 +17,7 @@
     <span class="product-form-text__error hidden" ref="addToCartTextError">
         <span class="svg-wrapper">{{- 'icon-error.svg' | inline_asset_content -}}</span>
     </span>
+    {% comment %} native snippet for add to cart button  {% endcomment %}
     {% render 'add-to-cart-button', product: product, can_add_to_cart: can_add_to_cart, class: 'gift-popup__atc' %}
     {%- endform -%}
 </product-form-component>

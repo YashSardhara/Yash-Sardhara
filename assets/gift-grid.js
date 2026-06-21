@@ -42,13 +42,19 @@ class GiftGrid extends HTMLElement {
             const btn = form.querySelector('[ref="addToCartButton"]');
             btn?.addEventListener('click', (e) => {
                 if (btn.disabled) return;
-                // Black + Medium selected -> add ONLY the Soft Winter Jacket,
-                // suppress the native add of the selected product.
                 if (this.jacketMatch()) {
+                    // Black + Medium selected -> add ONLY the Soft Winter Jacket
+                    // (suppress the native add) then open the cart drawer after completion of the cart event.
                     e.preventDefault();
                     e.stopImmediatePropagation();
                     this.addJacket();
-                    setTimeout(() => this.close(), 600);
+                    setTimeout(() => { this.close(); this.openCart(); }, 600);
+                } else {
+                    // Normal add: let the native form add the selection, then open the cart.
+                    setTimeout(() => {
+                        this.close();
+                        this.openCart();
+                    }, 2500);
                 }
             }, true);
         });
@@ -79,6 +85,12 @@ class GiftGrid extends HTMLElement {
         this.classList.remove('is-open');
         document.body.classList.remove('gift-no-scroll');
         this.product = null;
+    }
+
+    // click event for opening cart drawer after add-to-cart (for All variants)
+    // since we are not showing the header we are auto opening the cart drawer to show the user their updated cart with the gift item added
+    openCart() {
+        /** @type {HTMLElement|null} */ (document.querySelector('[data-testid="cart-drawer-trigger"]'))?.click();
     }
 
     renderOptions(product) {
@@ -145,6 +157,7 @@ class GiftGrid extends HTMLElement {
         return group;
     }
 
+    // predefined color name to hex map, plus passthrough for any other value (like hex or rgb)
     colorFor(value) {
         const map = {
             red: '#b20f36', grey: '#afafb7', gray: '#afafb7', blue: '#0d499f',
@@ -230,16 +243,20 @@ class GiftGrid extends HTMLElement {
                                 didError: false,
                             },
                         });
+                        this.openCart();
                     })
             )
             .catch(deferred.reject);
     }
 
+
     money(cents) {
+        // removing this.dataset.locale since we have to show in Euro and the locale is showing in dollar
         try {
-            return new Intl.NumberFormat(this.dataset.locale || 'en', {
+            return new Intl.NumberFormat( 'de-DE', {
                 style: 'currency',
-                currency: this.dataset.currency || 'USD',
+                currency: 'EUR',
+                trailingZeroDisplay: 'stripIfInteger',
             }).format(cents / 100);
         } catch {
             return (cents / 100).toFixed(2);
