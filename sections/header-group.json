@@ -125,30 +125,10 @@
         "collection_inverse_logo": false,
         "text_color_transparent_collection": ""
       }
-    },
-    "gift_banner_y4QrNQ": {
-      "type": "gift-banner",
-      "name": "Gift Banner",
-      "settings": {
-        "logo_text": "TISSO VISON",
-        "logo_link": "/",
-        "topbar_tagline": "Find the ideal gift for your loved ones.",
-        "topbar_button_text": "CHOOSE GIFT",
-        "topbar_button_link": "",
-        "background_image": "shopify://shop_images/Frame_1.jpg",
-        "heading": "The Gift Guide",
-        "description": "<p>Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.</p>",
-        "mobile_description": "<p>Discover Joy: Your Ultimate Holiday Gift Destination.</p>",
-        "button_text": "SHOP NOW",
-        "button_link": "",
-        "strip_text": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL",
-        "accent_color": "#FFF544"
-      }
     }
   },
   "order": [
     "header_announcements_9jGBFp",
-    "header_section",
-    "gift_banner_y4QrNQ"
+    "header_section"
   ]
 }
