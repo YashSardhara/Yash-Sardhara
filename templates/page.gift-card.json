@@ -100,16 +100,16 @@
           "type": "product",
           "settings": {
             "product": "chequered-red-shirt",
-            "hotspot_x": 50,
-            "hotspot_y": 50
+            "hotspot_x": 62,
+            "hotspot_y": 23
           }
         },
         "product_tVm3tT": {
           "type": "product",
           "settings": {
             "product": "classic-leather-jacket",
-            "hotspot_x": 50,
-            "hotspot_y": 50
+            "hotspot_x": 72,
+            "hotspot_y": 20
           }
         },
         "product_q8ityq": {
