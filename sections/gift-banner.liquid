@@ -26,7 +26,12 @@
                                 stroke-linecap="round" />
                         </svg>
                     </button>
-                    <span class="gift-banner__menu-logo">{{ section.settings.logo_text | escape }}</span>
+                    <span class="gift-banner__menu-logo">{%- if section.settings.logo != blank -%}
+                    <img src="{{ section.settings.logo | image_url: width: 360 }}" alt="{{ section.settings.logo_text | escape }}"
+                        width="180" height="20" loading="lazy">
+                    {%- else -%}
+                    {{ section.settings.logo_text | escape }}
+                    {%- endif -%}</span>
                 </div>
 
                 <p class="gift-banner__tagline">{{ section.settings.topbar_tagline | escape }}</p>
@@ -148,23 +153,23 @@
         top: 0;
         left: 0;
         z-index: 60;
-        width: min(85vw, 360px);
+        width: 100vw;
         height: 100%;
-        padding: 1.3rem 1.5rem 2rem;
+        padding: 0;
         background: #f7f7f7;
-        box-shadow: 2px 0 14px rgba(0,0,0,0.18);
+        box-shadow: 0px 2px 4px 0px #00000026;
         transform: translateX(-100%);
         transition: transform 0.3s ease;
     }
     .gift-banner.is-menu-open .gift-banner__menu { transform: translateX(0); }
 
-    .gift-banner__menu-head { display: flex; align-items: center; gap: 1rem; }
-    .gift-banner__close { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; padding: 0; background: none; border: none; color: #000; cursor: pointer; }
+    .gift-banner__menu-head { display: flex; align-items: center; gap: 1rem;box-shadow: 0px 2px 4px 0px #00000026; color: #F7F7F7;}
+    .gift-banner__close { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; padding: 0; background: none; border: none; color: #000; cursor: pointer;width: 12%; }
     .gift-banner__close svg { width: 18px; height: 18px; }
-    .gift-banner__menu-logo { font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; font-size: 1.05rem; }
-
-    .gift-banner__tagline { text-align: left; }
-    .gift-banner__pill { justify-self: start; align-self: flex-start; }
+    .gift-banner__menu-logo { font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; font-size: 1.05rem;text-align: center;width: 70%;padding: 20px; }
+    .gift-banner__menu-logo img { width: 180px; height: auto;margin: auto; }
+    .gift-banner__tagline { text-align: center; }
+    .gift-banner__pill { justify-self: start; align-self: center; }
 
     .gift-banner__overlay {display: block;position: fixed;inset: 0;z-index: 55;background: rgba(0,0,0,0.4);opacity: 0;visibility: hidden;transition: opacity 0.3s ease;}
     .gift-banner.is-menu-open .gift-banner__overlay { opacity: 1; visibility: visible; }
