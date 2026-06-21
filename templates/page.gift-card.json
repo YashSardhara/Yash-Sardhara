@@ -63,6 +63,7 @@
       "type": "gift-banner",
       "name": "Gift Banner",
       "settings": {
+        "logo": "shopify://shop_images/Group_1000007777.png",
         "logo_text": "TISSO VISON",
         "logo_link": "",
         "topbar_tagline": "Find the ideal gift for your loved ones.",
