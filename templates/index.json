@@ -42,7 +42,7 @@
           "type": "button",
           "name": "t:names.button",
           "settings": {
-            "label": "Gift Page",
+            "label": "Gift Guide",
             "link": "shopify://pages/gift-guide",
             "open_in_new_tab": false,
             "style_class": "button-custom",
