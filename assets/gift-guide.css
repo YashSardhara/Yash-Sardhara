@@ -16,6 +16,7 @@
     overflow: hidden;
     isolation: isolate;
     transition: color 0.35s ease;
+    min-width: 200px;
 }
 
 .gift-btn-anim__label,

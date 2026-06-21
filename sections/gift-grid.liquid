@@ -1,209 +1,336 @@
-{% schema %}
-    {
-    "name": "Gift Grid",
-    "tag": "section",
-    "class": "gift-grid-section section",
-    "settings": [
-        {"type": "text", "id": "heading", "label": "Heading", "default": "Tisso vison in the wild"},
-        {"type": "header", "content": "Cart rule"},
-        {"type": "product", "id": "soft_winter_jacket", "label": "Soft Winter Jacket", "info": "When any product with variant options Black and Medium is added to the cart the “Soft Winter Jacket” should also be automatically added to the cart"},
-        {
-        "type": "text",
-        "id": "soft_winter_jacket_variant",
-        "label": "Variant ID (optional override)",
-        "info": "Leave blank to auto-pick the jacket's Black/Medium variant. Paste a numeric variant ID (from .../variants/XXXX) to force a specific variant."
-        }
-    ],
-    "blocks": [ { "type":"product", "name":"Product", "settings": [
-        {"type": "product", "id": "product", "label": "Product" },
-        {"type": "image_picker", "id": "image", "label": "Image overrider (optional)"},
-        {"type": "range", "id": "hotspot_x", "label": "Hotspot X position ", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 50},
-        {"type": "range", "id": "hotspot_y", "label": "Hotspot Y position", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 50}
-    ]}],
-    "max_blocks": 6,
-    "presets": [{ "name": "Gift Grid" }]
-    }
-{% endschema %}
+{% comment %} "Tisso vison in the wild" grid. Each cell has a (+) hotspot that opens a quick view popup. {% endcomment %}
 
-{% comment %} Gift grid - gift guide section {% endcomment %}
-{%  liquid
-    assign swj = section.settings.soft_winter_jacket
-    if swj.first_available_variant != blank
-        assign swj_variant_id = swj.first_available_variant.id
-    else
-        assign swj_variant_id = swj.variants.first.id
+{%- liquid
+  # Find the Black + Medium variant of the picked Soft Winter Jacket (no hardcoded id).
+  assign swj = section.settings.soft_winter_jacket
+  assign swj_variant_id = swj.first_available_variant.id | default: swj.variants.first.id
+  for v in swj.variants
+    assign opts = v.options | join: ' ' | downcase
+    if opts contains 'black' and opts contains 'medium'
+      assign swj_variant_id = v.id
+      break
     endif
- %}
+  endfor
+  # Optional manual override: paste a specific variant id to force it.
+  if section.settings.soft_winter_jacket_variant != blank
+    assign swj_variant_id = section.settings.soft_winter_jacket_variant
+  endif
+-%}
 
-<gift-guide class="gift-guide" id="gift-guide{{ section.id }}" >
-    {% if section.settings.heading %}
-        <h2 class="gift-guide__heading">{{ section.settings.heading | escape }}</h2>
-    {% endif %}
+<gift-grid
+  class="gift-grid section"
+  id="gift-grid-{{ section.id }}"
+  data-currency="{{ cart.currency.iso_code | default: shop.currency }}"
+  data-locale="{{ request.locale.iso_code | default: 'en' }}"
+  data-swj-id="{{ swj_variant_id }}"
+>
+  {%- if section.settings.heading != blank -%}
+    <h2 class="gift-grid__heading">{{ section.settings.heading | escape }}</h2>
+  {%- endif -%}
 
-    <div class="gift-grid__items">
-        {% for block in section.blocks %}
-            {%  liquid
-                assign product = block.settings.product
-                if block.settings.image != blank
-                    assign cell_image = block.settings.image
-                else
-                    assign cell_image = product.featured_image
-                endif
-             %}
+  <div class="gift-grid__items">
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign product = block.settings.product
+        if block.settings.image != blank
+          assign cell_image = block.settings.image
+        elsif product != blank
+          assign cell_image = product.featured_image
+        endif
+      -%}
+      <div class="gift-grid__cell" {{ block.shopify_attributes }}>
+        {%- if cell_image != blank -%}
+          <img
+            class="gift-grid__img"
+            src="{{ cell_image | image_url: width: 900 }}"
+            srcset="{{ cell_image | image_url: width: 500 }} 500w, {{ cell_image | image_url: width: 900 }} 900w, {{ cell_image | image_url: width: 1200 }} 1200w"
+            sizes="(max-width: 749px) 50vw, 33vw"
+            alt="{{ product.title | default: 'Product' | escape }}"
+            loading="lazy" width="900" height="923"
+          >
+        {%- else -%}
+          <div class="gift-grid__img gift-grid__img--placeholder">{{ 'image' | placeholder_svg_tag }}</div>
+        {%- endif -%}
 
-             <div class="gift-grid__cell" {{ block.shopify_attributes }}>
-                {% if cell_image != blank %}
-                    <img class="gift-grid__img" src="{{ cell_image |  image_tag: width: 600 }}" srcset="{{ cell_image |  image_url: width: 500 }} 500w, {{ cell_image |  image_url: width: 800 }} 800w, {{ cell_image |  image_url: width: 1200 }} 1200w" sizes="(max-width: 749px) 50vw, 33vw" alt="{{ product.title |  default: product.handle | escape }}" loading="lazy" width="600" height="600" >
-                {% else %}
-                    <div class="gift-grid__img gift-grid__img--placeholder">{{ 'image' |  placeholder_svg_tag }}</div>
-                {% endif %}
+        {%- if product != blank -%}
+          <button
+            class="gift-hotspot"
+            type="button"
+            data-hotspot
+            data-index="{{ forloop.index0 }}"
+            style="--hx: {{ block.settings.hotspot_x }}%; --hy: {{ block.settings.hotspot_y }}%;"
+            aria-label="Quick view {{ product.title | escape }}"
+          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none">
+          <g filter="url(#filter0_d_3_2760)">
+          <circle cx="15" cy="12" r="11" fill="#F8F8F8" fill-opacity="0.9"/>
+          <path d="M15.3457 8.04175V16.5033" stroke="black" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"/>
+          <path d="M11.1152 12.2725H19.5768" stroke="black" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"/>
+          </g>
+          <defs>
+          <filter id="filter0_d_3_2760" x="0" y="0" width="30" height="30" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+          <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+          <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+          <feOffset dy="3"/>
+          <feGaussianBlur stdDeviation="2"/>
+          <feComposite in2="hardAlpha" operator="out"/>
+          <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0"/>
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_3_2760"/>
+          <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_3_2760" result="shape"/>
+          </filter>
+          </defs>
+          </svg>
+          </button>
+        {%- endif -%}
+      </div>
+    {%- endfor -%}
+  </div>
 
-                {% if product != blank %}
-                     <button class="gift-hotspot" type="button" data-hotspot data-index="{{ forloop.index0 }}"
-                        style="--hx: {{ block.settings.hotspot_x }}%; --hy: {{ block.settings.hotspot_y }}%;"
-                        aria-label="Quick View {{ product.title |  escape }}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none">
-                            <g filter="url(#filter0_d_5_3065)">
-                            <circle cx="15" cy="12" r="11" fill="#F8F8F8" fill-opacity="0.9"/>
-                            <path d="M12.3536 9.28107L18.3368 15.2643" stroke="black" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"/>
-                            <path d="M12.3535 15.2642L18.3367 9.28095" stroke="black" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round"/>
-                            </g>
-                            <defs>
-                            <filter id="filter0_d_5_3065" x="0" y="0" width="30" height="30" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-                            <feOffset dy="3"/>
-                            <feGaussianBlur stdDeviation="2"/>
-                            <feComposite in2="hardAlpha" operator="out"/>
-                            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0"/>
-                            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_5_3065"/>
-                            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_5_3065" result="shape"/>
-                            </filter>
-                            </defs>
-                        </svg>
-                     </button>
-                {% endif %}
-             </div>
-        {% endfor %}
-    </div>
- </gift-guide>
+  {%- comment -%} Product data for the popup, keyed by hotspot index so the JS doesn't need a second fetch. {%- endcomment -%}
+  <script type="application/json" data-gift-products>
+    [
+      {%- assign emitted = 0 -%}
+      {%- for block in section.blocks -%}
+        {%- if block.settings.product != blank -%}
+          {%- assign product = block.settings.product -%}
+          {%- if block.settings.image != blank -%}
+            {%- assign cell_img = block.settings.image | image_url: width: 300 -%}
+          {%- elsif product.featured_image != blank -%}
+            {%- assign cell_img = product.featured_image | image_url: width: 300 -%}
+          {%- else -%}
+            {%- assign cell_img = '' -%}
+          {%- endif -%}
+          {%- if emitted > 0 -%},{%- endif -%}
+          {
+            "index": {{ forloop.index0 }},
+            "id": {{ product.id }},
+            "title": {{ product.title | json }},
+            "description": {{ product.description | strip_html | json }},
+            "image": {{ cell_img | json }},
+            "price": {{ product.price }},
+            "options": {{ product.options | json }},
+            "variants": [
+              {%- for v in product.variants -%}
+                {
+                  "id": {{ v.id }},
+                  "title": {{ v.title | json }},
+                  "price": {{ v.price }},
+                  "available": {{ v.available }},
+                  "options": {{ v.options | json }}
+                }{%- unless forloop.last -%},{%- endunless -%}
+              {%- endfor -%}
+            ]
+          }
+          {%- assign emitted = emitted | plus: 1 -%}
+        {%- endif -%}
+      {%- endfor -%}
+    ]
+  </script>
 
- <script type="application/json" data-gift-products>
-        [
-            {% assign emitted = 0 %}
-            {%- for block in section.blocks -%}
-                {%- if block.settings.product != blank -%}
-                    {%- assign product = block.settings.product -%}
-                    {%- if block.settings.image != blank -%}
-                        {%- assign cell_image = block.settings.image |  image_url  -%}
-                    {%- else -%}
-                        {%- assign cell_image = blank -%}
-                    {%- endif -%}
-                    {%- if emitted > 0 -%} , {%- endif -%}
-                    {
-                        "index": {{ forloop.index0 }},
-                        "id": {{ product.id }},
-                        "title": {{ product.title | json }},
-                        "description": {{ product.description | json }},
-                        "price": {{ product.price }},
-                        "options": {{ product.options | json }},
-                        "variants": [
-                            {%- for v in product.variants -%}
-                                {
-                                    "id": {{ v.id }},
-                                    "title": {{ v.title }},
-                                    "price": {{ v.price }},
-                                    "available": {{ v.available | json }},
-                                    "option": {{ v.options | json }},
-                                }{% unless forloop.last %} , {% endunless %}
-                            {%- endfor -%}
-                        ],
-                    }
-                    {%- assign emitted = emitted | plus: 1 -%}
-                {%- endif -%}
-            {% endfor %}
-        ]
- </script>
+  {%- comment -%} One popup is reused for every product. {%- endcomment -%}
+  <div class="gift-popup" data-popup role="dialog" aria-modal="true" aria-labelledby="gift-popup-title-{{ section.id }}">
+    <div class="gift-popup__overlay" data-popup-overlay></div>
+    <div class="gift-popup__panel" role="document">
+      <button class="gift-popup__close" type="button" data-popup-close aria-label="Close">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4l12 12M16 4L4 16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
 
-{% comment %} reuseable popup {% endcomment %}
+      <div class="gift-popup__head">
+        <img class="gift-popup__thumb" data-popup-image alt="">
+        <div class="gift-popup__intro">
+          <h3 class="gift-popup__title" id="gift-popup-title-{{ section.id }}" data-popup-title></h3>
+          <p class="gift-popup__price" data-popup-price></p>
+          <div class="gift-popup__desc" data-popup-description></div>
+        </div>
+      </div>
 
-<div class="gift-popup" data-popup role="dialog" aria-modal="true" aria-labelledby="gift-popup-title-{{ section.id }}">
-    <div class="gift-popup-overlay" data-popup-overlay></div>
-    <div class="gift-popup-panel">
-        <button class="gift-popup__close" type="button" data-popup-close aria-label="Close">
-            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30" fill="none">
-                <g filter="url(#filter0_d_5_3065)">
-                    <circle cx="15" cy="12" r="11" fill="#F8F8F8" fill-opacity="0.9" />
-                    <path d="M12.3536 9.28107L18.3368 15.2643" stroke="black" stroke-width="1.5" stroke-linecap="square"
-                        stroke-linejoin="round" />
-                    <path d="M12.3535 15.2642L18.3367 9.28095" stroke="black" stroke-width="1.5" stroke-linecap="square"
-                        stroke-linejoin="round" />
-                </g>
-                <defs>
-                    <filter id="filter0_d_5_3065" x="0" y="0" width="30" height="30" filterUnits="userSpaceOnUse"
-                        color-interpolation-filters="sRGB">
-                        <feFlood flood-opacity="0" result="BackgroundImageFix" />
-                        <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
-                            result="hardAlpha" />
-                        <feOffset dy="3" />
-                        <feGaussianBlur stdDeviation="2" />
-                        <feComposite in2="hardAlpha" operator="out" />
-                        <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.2 0" />
-                        <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_5_3065" />
-                        <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_5_3065" result="shape" />
-                    </filter>
-                </defs>
-            </svg>
-        </button>
+      <div class="gift-popup__options" data-popup-options></div>
 
-        <div class="gift-popup__head">
-            <img class="gift-popup__thumb" data-popup-image alt="">
-            <div class="gift-popup__intro">
-                <h3 class="gift-popup__title" id="gift-popup-title-{{ section.id }}" data-popup-title></h3>
-                <p class="gift-popup__price" data-popup-price></p>
-                <div class="gift-popup__desc" data-popup-description></div>
+      {%- comment -%} One native product form per product. gift-grid.js shows the active one and feeds it the chosen variant. {%- endcomment -%}
+      <div class="gift-popup__forms">
+        {%- for block in section.blocks -%}
+          {%- if block.settings.product != blank -%}
+            <div class="gift-popup__form" data-popup-form data-form-index="{{ forloop.index0 }}" hidden>
+              {% render 'gift-add-to-cart', product: block.settings.product, section: section, index: forloop.index0 %}
             </div>
-        </div>
-
-        <div class="gift-popup__options" data-popup-options></div>
-        <div class="gift-popup__forms">
-            {%- for block in section.blocks -%}
-                {% if block.settings.product != blank %}
-                    <form class="gift-popup__form" data-popup-form data-form-index="{{ forloop.index0 }}" hidden>
-                        {% render 'gift-add-to-cart', product: block.settings.product, section: section, index: forloop.index0 %}
-                    </form>
-                {% endif %}
-            {% endfor %}
-        </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
     </div>
-</div>
+  </div>
+</gift-grid>
 
+<script src="{{ 'gift-grid.js' | asset_url }}" type="module"></script>
+{{ 'gift-guide.css' | asset_url | stylesheet_tag }}
 
+{% stylesheet %}
+.gift-guide { margin-block: 50px; }
+.gift-grid { color: #000; max-width: 1440px; margin-inline: auto; padding: 90px 0px; }
+.gift-grid__heading { font-family: Lustria; font-weight: 400; font-size: 36px; line-height: 120%; letter-spacing: 0px; }
+.gift-grid__items { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.gift-grid__cell { position: relative; overflow: hidden; background: none; flex: 0 0 calc((100% - 32px) / 3); }
+.gift-grid__img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+.gift-grid__img--placeholder svg { width: 100%; height: 100%; opacity: 0.3; }
+.gift-hotspot {
+  position: absolute;
+  left: var(--hx);
+  top: var(--hy);
+  width: 35px; height: auto;
+  transform: translate(-50%, -50%);
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+  cursor: pointer;
+  background: none; border: none; padding: 0;
+}
+.gift-hotspot svg { width: 100%; height: auto; }
 
-<script src="{{ 'gift-grid.js' | asset_url }}" defer="defer"></script>
+/* quick view popup */
+.gift-popup { display: none; }
+.gift-grid.is-open .gift-popup { display: block; position: fixed; inset: 0; z-index: 9999; }
+.gift-popup__overlay { position: absolute; inset: 0; background: transparent; }
+.gift-popup__panel {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: min(92vw, 330px); max-height: 90vh; overflow-y: auto;
+  background: #fff; border-radius: 0; padding: 20px;
+  box-shadow: 0 8px 34px rgba(0,0,0,0.22);
+  animation: gift-pop-in 0.22s ease;
+}
+@keyframes gift-pop-in { from { opacity: 0; transform: translate(-50%, -46%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+.gift-popup__close { position: absolute; top: 12px; right: 12px; width: 26px; height: 26px; border: none; background: none; color: #111; cursor: pointer; display: grid; place-items: center; }
+.gift-popup__close svg { width: 16px; height: 16px; }
 
-<style>
-    .gift-guide{margin-block: 50px;}
-    .gift-grid{ color: #000; max-width: 1120px; margin-inline: auto; padding:90px 50px; }
-    .gift-grid__heading { font-family: Lustria; font-weight: 400; font-size: 36px; line-height: 120%; letter-spacing: 0px;}
-    .gift-grid__items { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
-    .gift-grid__cell { position: relative; overflow: hidden; background: none; }
-    .gift-grid__img { width: 24vw; height: 24vw; object-fit: cover;}
-    .gift-grid__img--placeholder svg { width: 100%; height: 100%; opacity: 0.3;}
-    .gift-hotspot { position: absolute;
-        left: var(--hx);
-        top: var(--hy);
-        width: 35px; height: auto;
-        transform: translate(-50%, -50%);
-        transition: transform 0.2s ease, background 0.2s ease , color 0.2s ease; cursor: pointer;
-        background: none; border: none; padding: 0;}
-    .gift-hotspot svg { width: 100%; height: auto;}
+.gift-popup__head { display: flex; gap: 16px; margin-bottom: 18px; }
+.gift-popup__thumb { width: 118px; height: 138px; object-fit: cover; flex: 0 0 118px; background: #f2f2f2; }
+.gift-popup__intro { min-width: 0; }
+.gift-popup__title { font-weight: 300; font-size: 16px; line-height: 1.2; margin: 0 0 6px; color: #000; }
+.gift-popup__price { font-weight: 400; font-size: 16px; line-height: 1.2; margin: 0 0 8px; color: #000; }
+.gift-popup__desc { font-weight: 300; font-size: 14px; line-height: 1.15; color: #000; }
+.gift-popup__desc p { margin: 0; }
 
-    @media screen and (max-width: 749px) {
-        .gift-grid__heading { text-align: center; font-size: 24px; font-weight: 400;line-height: 120%;}
-        .gift-grid__img { width: 43vw; height: 43vw; }
-        .gift-hotspot { left: 64%; top: 14%;}
+.gift-popup__option { margin-bottom: 16px; }
+.gift-popup__option-label { display: block; font-size: 14px; color: #333; margin-bottom: 8px; }
+
+/* sliding colour toggle */
+.gift-swatch-group {
+  position: relative;
+  display: flex;
+  height: 40px;
+  border: 1px solid #000;
+  overflow: hidden;
+}
+.gift-swatch-indicator {
+  position: absolute; top: 0; left: 0; height: 100%;
+  width: calc(100% / var(--count, 2));
+  background: #111;
+  opacity: 0;
+  transform: translateX(calc(var(--sel, 0) * 100%));
+  transition: transform 0.35s ease, opacity 0.2s ease;
+  z-index: 0;
+}
+.gift-swatch-group.has-selection .gift-swatch-indicator { opacity: 1; }
+.gift-swatch {
+  flex: 1 1 0; min-width: 0;
+  position: relative; z-index: 1;
+  display: flex; align-items: center; gap: 10px;
+  padding: 0; background: transparent;
+  border: none; border-left: 1px solid #000;
+  cursor: pointer; font-family: inherit;
+}
+.gift-swatch:first-child { border-left: none; }
+.gift-swatch__bar { flex: 0 0 6px; align-self: stretch; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.12); }
+.gift-swatch__label { font-family: inherit; font-size: 18px; letter-spacing: -0.02em; color: #000; text-transform: capitalize; transition: color 0.35s ease; }
+.gift-swatch.is-active .gift-swatch__label { color: #fff; }
+
+/* size dropdown with a divided chevron box on the right */
+.gift-popup__select {
+  width: 100%; height: 40px; padding: 0 56px 0 12px;
+  border: 1px solid #000; font-size: 16px; font-family: inherit; color: #000;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' stroke='%23111' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat right 16px center,
+    linear-gradient(#000, #000) no-repeat calc(100% - 44px) 0 / 1px 100%;
+  appearance: none; -webkit-appearance: none; cursor: pointer;
+}
+
+/* native add-to-cart button restyled to match the design (black bar + arrow) */
+.gift-popup__forms { margin-top: 16px; }
+.gift-popup__panel .gift-popup__atc {
+  position: relative;
+  width: 100%;
+  min-height: 48px;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 0;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.gift-popup__panel .gift-popup__atc:hover,
+.gift-popup__panel .gift-popup__atc:focus-visible { background: #1c1c1c; }
+.gift-popup__panel .gift-popup__atc[disabled] { opacity: 0.5; cursor: not-allowed; }
+.gift-popup__atc .add-to-cart-icon { display: none; } /* hide the default cart icon */
+.gift-popup__atc::after {
+  content: "";
+  position: absolute; right: 24px; top: 50%; transform: translateY(-50%);
+  width: 26px; height: 12px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='12' viewBox='0 0 26 12' fill='none'%3E%3Cpath d='M0 6h23M18 1l5 5-5 5' stroke='%23fff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+  transition: transform 0.3s ease;
+}
+.gift-popup__panel .gift-popup__atc:hover::after { transform: translate(6px, -50%); }
+
+@media (prefers-reduced-motion: reduce) {
+  .gift-swatch-indicator { transition: none; }
+}
+body.gift-no-scroll { overflow: hidden; }
+
+@media screen and (max-width: 749px) {
+  .gift-grid__heading { text-align: center; font-size: 24px; font-weight: 400; line-height: 120%; }
+  .gift-grid__cell { flex: 0 0 calc((100% - 16px) / 2); }
+  .gift-hotspot { left: 64%; top: 14%; }
+}
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Gift Grid",
+  "tag": "section",
+  "class": "gift-grid-section",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Tisso vison in the wild" },
+    { "type": "header", "content": "Cart rule" },
+    {
+      "type": "product",
+      "id": "soft_winter_jacket",
+      "label": "Soft Winter Jacket",
+      "info": "Pick the 'Soft Winter Jacket' product. When a customer adds any variant with BOTH 'Black' and 'Medium', this jacket's Black/Medium variant is auto-added to the cart."
+    },
+    {
+      "type": "text",
+      "id": "soft_winter_jacket_variant",
+      "label": "Variant ID (optional override)",
+      "info": "Leave blank to auto-pick the jacket's Black/Medium variant. Paste a numeric variant ID (from .../variants/XXXX) to force a specific variant."
     }
-</style>
-
-
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        { "type": "product", "id": "product", "label": "Product" },
+        { "type": "image_picker", "id": "image", "label": "Image override (optional)", "info": "Defaults to the product's featured image." },
+        { "type": "range", "id": "hotspot_x", "label": "Hotspot X position", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 50 },
+        { "type": "range", "id": "hotspot_y", "label": "Hotspot Y position", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 50 }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Gift Grid",
+      "blocks": [
+        { "type": "product" }, { "type": "product" }, { "type": "product" },
+        { "type": "product" }, { "type": "product" }, { "type": "product" }
+      ]
+    }
+  ]
+}
+{% endschema %}
