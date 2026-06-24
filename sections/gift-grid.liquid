@@ -1,28 +1,11 @@
 {% comment %} Gift Grid section with hotspot for Gift Guide page {% endcomment %}
 {% comment %} Each cell has a (+) hotspot that opens a quick view popup. {% endcomment %}
-{%- liquid
-  # Find the Black + Medium variant of the picked Soft Winter Jacket (no hardcoded id).
-  assign swj = section.settings.soft_winter_jacket
-  assign swj_variant_id = swj.first_available_variant.id | default: swj.variants.first.id
-  for v in swj.variants
-    assign opts = v.options | join: ' ' | downcase
-    if opts contains 'black' and opts contains 'medium'
-      assign swj_variant_id = v.id
-      break
-    endif
-  endfor
-  # Optional manual override: paste a specific variant id to force it.
-  if section.settings.soft_winter_jacket_variant != blank
-    assign swj_variant_id = section.settings.soft_winter_jacket_variant
-  endif
--%}
 
 <gift-grid
   class="gift-grid section"
   id="gift-grid-{{ section.id }}"
   data-currency="{{ cart.currency.iso_code | default: shop.currency }}"
   data-locale="{{ request.locale.iso_code | default: 'en' }}"
-  data-swj-id="{{ swj_variant_id }}"
 >
   {%- if section.settings.heading != blank -%}
     <h2 class="gift-grid__heading">{{ section.settings.heading | escape }}</h2>
@@ -160,7 +143,7 @@
   </div>
 </gift-grid>
 
-<script src="{{ 'gift-grid.js' | asset_url }}" type="module"></script>
+<script src="{{ 'gift-grid.js' | asset_url }}" defer="defer"></script>
 {{ 'gift-guide.css' | asset_url | stylesheet_tag }}
 
 {% stylesheet %}
@@ -305,20 +288,7 @@ body.gift-no-scroll { overflow: hidden; }
   "tag": "section",
   "class": "gift-grid-section",
   "settings": [
-    { "type": "text", "id": "heading", "label": "Heading", "default": "Tisso vison in the wild" },
-    { "type": "header", "content": "Cart rule" },
-    {
-      "type": "product",
-      "id": "soft_winter_jacket",
-      "label": "Soft Winter Jacket",
-      "info": "Pick the 'Soft Winter Jacket' product. When a customer adds any variant with BOTH 'Black' and 'Medium', this jacket's Black/Medium variant is auto-added to the cart."
-    },
-    {
-      "type": "text",
-      "id": "soft_winter_jacket_variant",
-      "label": "Variant ID (optional override)",
-      "info": "Leave blank to auto-pick the jacket's Black/Medium variant. Paste a numeric variant ID (from .../variants/XXXX) to force a specific variant."
-    }
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Tisso vison in the wild" }
   ],
   "blocks": [
     {
