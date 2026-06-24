@@ -1,9 +1,5 @@
-import { CartLinesUpdateEvent } from '@shopify/events';
-
 class GiftGrid extends HTMLElement {
     connectedCallback() {
-        this.softWinterJacketId = parseInt(this.dataset.swjId, 10) || null;
-
         this.products = {};
         try {
             JSON.parse(this.querySelector('[data-gift-products]').textContent)
@@ -40,23 +36,14 @@ class GiftGrid extends HTMLElement {
 
         this.forms.forEach((form) => {
             const btn = form.querySelector('[ref="addToCartButton"]');
-            btn?.addEventListener('click', (e) => {
+            btn?.addEventListener('click', () => {
                 if (btn.disabled) return;
-                if (this.jacketMatch()) {
-                    // Black + Medium selected -> add ONLY the Soft Winter Jacket
-                    // (suppress the native add) then open the cart drawer after completion of the cart event.
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-                    this.addJacket();
-                    setTimeout(() => { this.close(); this.openCart(); }, 600);
-                } else {
-                    // Normal add: let the native form add the selection, then open the cart.
-                    setTimeout(() => {
-                        this.close();
-                        this.openCart();
-                    }, 2500);
-                }
-            }, true);
+                // Let the native form add the selected variant, then open the cart drawer.
+                setTimeout(() => {
+                    this.close();
+                    this.openCart();
+                }, 2500);
+            });
         });
     }
 
@@ -186,67 +173,6 @@ class GiftGrid extends HTMLElement {
         const ready = Boolean(variant && variant.available);
         if (ready) input.value = variant.id;
         btn.disabled = !ready;
-    }
-
-
-    jacketMatch() {
-        const variant = this.matchedVariant();
-        if (!variant || !this.softWinterJacketId) return false;
-        const opts = variant.options.map((o) => String(o).trim().toLowerCase());
-        const hasBlack = opts.includes('black');
-        const hasMedium = opts.includes('m') || opts.includes('medium');
-        return hasBlack && hasMedium;
-    }
-
-    addJacket() {
-        if (!this.softWinterJacketId) return;
-
-        // Ask Shopify to return the cart-items section HTML so the drawer can
-        // re-render live (same mechanism the native product form uses).
-        /** @type {string[]} */
-        const sectionIds = [];
-        document.querySelectorAll('cart-items-component').forEach((el) => {
-            if (el instanceof HTMLElement && el.dataset.sectionId) sectionIds.push(el.dataset.sectionId);
-        });
-
-        /** @type {{ items: Array<{ id: number, quantity: number }>, sections?: string }} */
-        const body = { items: [{ id: this.softWinterJacketId, quantity: 1 }] };
-        if (sectionIds.length) body.sections = sectionIds.join(',');
-
-        const deferred = CartLinesUpdateEvent.createPromise();
-        document.body.dispatchEvent(
-            new CartLinesUpdateEvent({
-                action: 'add',
-                context: 'product',
-                lines: [{ merchandiseId: String(this.softWinterJacketId), quantity: 1 }],
-                promise: deferred.promise,
-            })
-        );
-
-        fetch('/cart/add.js', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-            body: JSON.stringify(body),
-        })
-            .then((r) => r.json())
-            .then((added) =>
-                fetch('/cart.js', { headers: { Accept: 'application/json' }, credentials: 'same-origin' })
-                    .then((r) => r.json())
-                    .then((cart) => {
-                        deferred.resolve({
-                            cart: CartLinesUpdateEvent.createCartFromAjaxResponse(cart),
-                            detail: {
-                                items: cart.items,
-                                source: 'gift-grid',
-                                itemCount: 1,
-                                sections: added.sections,
-                                didError: false,
-                            },
-                        });
-                        this.openCart();
-                    })
-            )
-            .catch(deferred.reject);
     }
 
 
